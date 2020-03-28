@@ -504,8 +504,8 @@ go_repository(
 
 go_repository(
     name = "com_github_minio_minio_go",
-    importpath = "github.com/minio/minio-go",
-    tag = "v6.0.14",
+    importpath = "github.com/minio/minio-go/v6",
+    tag = "v6.0.50",
 )
 
 go_repository(

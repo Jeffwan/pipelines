@@ -20,12 +20,27 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         - name: OBJECTSTORECONFIG_SECURE
-          value: "false"
+          valueFrom:
+            configMapKeyRef:
+              name: pipeline-install-config
+              key: minioServiceSecure
         - name: OBJECTSTORECONFIG_BUCKETNAME
           valueFrom:
             configMapKeyRef:
               name: pipeline-install-config
               key: bucketName
+        - name: OBJECTSTORECONFIG_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: pipeline-install-config
+              key: minioServiceHost
+        - name: OBJECTSTORECONFIG_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: pipeline-install-config
+              key: minioServiceRegion
+        - name: OBJECTSTORECONFIG_PORT
+          value: ""
         - name: DBCONFIG_USER
           valueFrom:
             secretKeyRef:

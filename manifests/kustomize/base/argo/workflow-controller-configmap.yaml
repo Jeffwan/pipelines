@@ -13,7 +13,7 @@ data:
         s3: {
             bucket: $(kfp-artifact-bucket-name),
             keyPrefix: artifacts,
-            endpoint: minio-service.$(kfp-namespace):9000,
+            endpoint: s3.amazonaws.com,
             insecure: true,
             accessKeySecret: {
                 name: mlpipeline-minio-artifact,

@@ -15,9 +15,10 @@
 
 import os
 
-from typing import Text
+from typing import List, Text
 
 import kfp
+from kfp import aws, onprem
 import tensorflow_model_analysis as tfma
 from tfx.components.evaluator.component import Evaluator
 from tfx.components.example_gen.csv_example_gen.component import CsvExampleGen
@@ -58,7 +59,8 @@ pipeline_root = os.path.join(
 
 def _create_pipeline(
     pipeline_root: Text, csv_input_location: data_types.RuntimeParameter,
-    taxi_module_file: data_types.RuntimeParameter, enable_cache: bool
+    taxi_module_file: data_types.RuntimeParameter, enable_cache: bool,
+    beam_pipeline_args: List[Text]
 ):
   """Creates a simple Kubeflow-based Chicago Taxi TFX pipeline.
 
@@ -162,23 +164,55 @@ def _create_pipeline(
           trainer, model_analyzer, pusher
       ],
       enable_cache=enable_cache,
+      beam_pipeline_args=beam_pipeline_args
   )
 
 
 if __name__ == '__main__':
   enable_cache = True
+  # Pipeline arguments for Beam powered Components.
+  beam_pipeline_args = [
+      '--runner=PortableRunner',
+      # 0 means auto-detect based on on the number of CPUs available
+      # # during execution time.
+      '--job_endpoint=beam-job-server:8099',
+      '--artifact_endpoint=beam-job-server:8098',
+      '--environment_type=EXTERNAL',
+      '--environment_config=localhost:50000'
+  ]
+
+#   beam_pipeline_args = [
+#       '--runner=FlinkRunner',
+#       # 0 means auto-detect based on on the number of CPUs available
+#       # # during execution time.
+#       '--flink_master=beam-flink-cluster-jobmanager:8081',
+#       '--flink_submit_uber_jar',
+#       '--artifact_endpoint=beam-job-server:8098',
+#       '--environment_type=EXTERNAL',
+#       '--environment_config=localhost:50000'
+#   ]
+
   pipeline = _create_pipeline(
       pipeline_root,
       _data_root_param,
       _taxi_module_file_param,
       enable_cache=enable_cache,
+      beam_pipeline_args=beam_pipeline_args,
   )
   # Make sure the version of TFX image used is consistent with the version of
   # TFX SDK.
+  mount_secret_op = aws.use_aws_secret('aws-secret', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY')
+  mount_volume_op = onprem.mount_pvc(
+    "tfx-taxi-pvc",
+    "tfx-taxi-volume",
+    "/mnt/pipeline")
+
   config = kubeflow_dag_runner.KubeflowDagRunnerConfig(
+      pipeline_operator_funcs=[mount_secret_op, mount_volume_op],
       kubeflow_metadata_config=kubeflow_dag_runner.
       get_default_kubeflow_metadata_config(),
-      tfx_image='gcr.io/tfx-oss-public/tfx:0.22.0',
+      # beam needs boto3
+      tfx_image='seedjeffwan/tfx:0.22.0',
   )
   kfp_runner = kubeflow_dag_runner.KubeflowDagRunner(
       output_filename=__file__ + '.yaml', config=config

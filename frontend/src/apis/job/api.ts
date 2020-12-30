@@ -218,13 +218,13 @@ export interface ApiListJobsResponse {
    */
   jobs?: Array<ApiJob>;
   /**
-   *
+   * The total number of jobs for the given query.
    * @type {number}
    * @memberof ApiListJobsResponse
    */
   total_size?: number;
   /**
-   *
+   * The token to list the next page of jobs.
    * @type {string}
    * @memberof ApiListJobsResponse
    */
@@ -384,6 +384,7 @@ export enum ApiResourceType {
   PIPELINE = <any>'PIPELINE',
   PIPELINEVERSION = <any>'PIPELINE_VERSION',
   NAMESPACE = <any>'NAMESPACE',
+  USER = <any>'USER',
 }
 
 /**
@@ -471,7 +472,7 @@ export const JobServiceApiFetchParamCreator = function(configuration?: Configura
   return {
     /**
      *
-     * @summary Create a new job.
+     * @summary Creates a new job.
      * @param {ApiJob} body The job to be created
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -522,7 +523,7 @@ export const JobServiceApiFetchParamCreator = function(configuration?: Configura
     },
     /**
      *
-     * @summary Delete a job.
+     * @summary Deletes a job.
      * @param {string} id The ID of the job to be deleted
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -666,7 +667,7 @@ export const JobServiceApiFetchParamCreator = function(configuration?: Configura
     },
     /**
      *
-     * @summary Find a specific job by ID.
+     * @summary Finds a specific job by ID.
      * @param {string} id The ID of the job to be retrieved
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -714,11 +715,11 @@ export const JobServiceApiFetchParamCreator = function(configuration?: Configura
     },
     /**
      *
-     * @summary Find all jobs.
-     * @param {string} [page_token]
-     * @param {number} [page_size]
-     * @param {string} [sort_by] Can be format of \&quot;field_name\&quot;, \&quot;field_name asc\&quot; or \&quot;field_name des\&quot;. Ascending by default.
-     * @param {'UNKNOWN_RESOURCE_TYPE' | 'EXPERIMENT' | 'JOB' | 'PIPELINE' | 'PIPELINE_VERSION' | 'NAMESPACE'} [resource_reference_key_type] The type of the resource that referred to.
+     * @summary Finds all jobs.
+     * @param {string} [page_token] A page token to request the next page of results. The token is acquried from the nextPageToken field of the response from the previous ListJobs call or can be omitted when fetching the first page.
+     * @param {number} [page_size] The number of jobs to be listed per page. If there are more jobs than this number, the response message will contain a nextPageToken field you can use to fetch the next page.
+     * @param {string} [sort_by] Can be format of \&quot;field_name\&quot;, \&quot;field_name asc\&quot; or \&quot;field_name desc\&quot;. Ascending by default.
+     * @param {'UNKNOWN_RESOURCE_TYPE' | 'EXPERIMENT' | 'JOB' | 'PIPELINE' | 'PIPELINE_VERSION' | 'NAMESPACE' | 'USER'} [resource_reference_key_type] The type of the resource that referred to.
      * @param {string} [resource_reference_key_id] The ID of the resource that referred to.
      * @param {string} [filter] A url-encoded, JSON-serialized Filter protocol buffer (see [filter.proto](https://github.com/kubeflow/pipelines/ blob/master/backend/api/filter.proto)).
      * @param {*} [options] Override http request option.
@@ -734,7 +735,8 @@ export const JobServiceApiFetchParamCreator = function(configuration?: Configura
         | 'JOB'
         | 'PIPELINE'
         | 'PIPELINE_VERSION'
-        | 'NAMESPACE',
+        | 'NAMESPACE'
+        | 'USER',
       resource_reference_key_id?: string,
       filter?: string,
       options: any = {},
@@ -804,7 +806,7 @@ export const JobServiceApiFp = function(configuration?: Configuration) {
   return {
     /**
      *
-     * @summary Create a new job.
+     * @summary Creates a new job.
      * @param {ApiJob} body The job to be created
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -829,7 +831,7 @@ export const JobServiceApiFp = function(configuration?: Configuration) {
     },
     /**
      *
-     * @summary Delete a job.
+     * @summary Deletes a job.
      * @param {string} id The ID of the job to be deleted
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -895,7 +897,7 @@ export const JobServiceApiFp = function(configuration?: Configuration) {
     },
     /**
      *
-     * @summary Find a specific job by ID.
+     * @summary Finds a specific job by ID.
      * @param {string} id The ID of the job to be retrieved
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -914,11 +916,11 @@ export const JobServiceApiFp = function(configuration?: Configuration) {
     },
     /**
      *
-     * @summary Find all jobs.
-     * @param {string} [page_token]
-     * @param {number} [page_size]
-     * @param {string} [sort_by] Can be format of \&quot;field_name\&quot;, \&quot;field_name asc\&quot; or \&quot;field_name des\&quot;. Ascending by default.
-     * @param {'UNKNOWN_RESOURCE_TYPE' | 'EXPERIMENT' | 'JOB' | 'PIPELINE' | 'PIPELINE_VERSION' | 'NAMESPACE'} [resource_reference_key_type] The type of the resource that referred to.
+     * @summary Finds all jobs.
+     * @param {string} [page_token] A page token to request the next page of results. The token is acquried from the nextPageToken field of the response from the previous ListJobs call or can be omitted when fetching the first page.
+     * @param {number} [page_size] The number of jobs to be listed per page. If there are more jobs than this number, the response message will contain a nextPageToken field you can use to fetch the next page.
+     * @param {string} [sort_by] Can be format of \&quot;field_name\&quot;, \&quot;field_name asc\&quot; or \&quot;field_name desc\&quot;. Ascending by default.
+     * @param {'UNKNOWN_RESOURCE_TYPE' | 'EXPERIMENT' | 'JOB' | 'PIPELINE' | 'PIPELINE_VERSION' | 'NAMESPACE' | 'USER'} [resource_reference_key_type] The type of the resource that referred to.
      * @param {string} [resource_reference_key_id] The ID of the resource that referred to.
      * @param {string} [filter] A url-encoded, JSON-serialized Filter protocol buffer (see [filter.proto](https://github.com/kubeflow/pipelines/ blob/master/backend/api/filter.proto)).
      * @param {*} [options] Override http request option.
@@ -934,7 +936,8 @@ export const JobServiceApiFp = function(configuration?: Configuration) {
         | 'JOB'
         | 'PIPELINE'
         | 'PIPELINE_VERSION'
-        | 'NAMESPACE',
+        | 'NAMESPACE'
+        | 'USER',
       resource_reference_key_id?: string,
       filter?: string,
       options?: any,
@@ -973,7 +976,7 @@ export const JobServiceApiFactory = function(
   return {
     /**
      *
-     * @summary Create a new job.
+     * @summary Creates a new job.
      * @param {ApiJob} body The job to be created
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -983,7 +986,7 @@ export const JobServiceApiFactory = function(
     },
     /**
      *
-     * @summary Delete a job.
+     * @summary Deletes a job.
      * @param {string} id The ID of the job to be deleted
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -1013,7 +1016,7 @@ export const JobServiceApiFactory = function(
     },
     /**
      *
-     * @summary Find a specific job by ID.
+     * @summary Finds a specific job by ID.
      * @param {string} id The ID of the job to be retrieved
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -1023,11 +1026,11 @@ export const JobServiceApiFactory = function(
     },
     /**
      *
-     * @summary Find all jobs.
-     * @param {string} [page_token]
-     * @param {number} [page_size]
-     * @param {string} [sort_by] Can be format of \&quot;field_name\&quot;, \&quot;field_name asc\&quot; or \&quot;field_name des\&quot;. Ascending by default.
-     * @param {'UNKNOWN_RESOURCE_TYPE' | 'EXPERIMENT' | 'JOB' | 'PIPELINE' | 'PIPELINE_VERSION' | 'NAMESPACE'} [resource_reference_key_type] The type of the resource that referred to.
+     * @summary Finds all jobs.
+     * @param {string} [page_token] A page token to request the next page of results. The token is acquried from the nextPageToken field of the response from the previous ListJobs call or can be omitted when fetching the first page.
+     * @param {number} [page_size] The number of jobs to be listed per page. If there are more jobs than this number, the response message will contain a nextPageToken field you can use to fetch the next page.
+     * @param {string} [sort_by] Can be format of \&quot;field_name\&quot;, \&quot;field_name asc\&quot; or \&quot;field_name desc\&quot;. Ascending by default.
+     * @param {'UNKNOWN_RESOURCE_TYPE' | 'EXPERIMENT' | 'JOB' | 'PIPELINE' | 'PIPELINE_VERSION' | 'NAMESPACE' | 'USER'} [resource_reference_key_type] The type of the resource that referred to.
      * @param {string} [resource_reference_key_id] The ID of the resource that referred to.
      * @param {string} [filter] A url-encoded, JSON-serialized Filter protocol buffer (see [filter.proto](https://github.com/kubeflow/pipelines/ blob/master/backend/api/filter.proto)).
      * @param {*} [options] Override http request option.
@@ -1043,7 +1046,8 @@ export const JobServiceApiFactory = function(
         | 'JOB'
         | 'PIPELINE'
         | 'PIPELINE_VERSION'
-        | 'NAMESPACE',
+        | 'NAMESPACE'
+        | 'USER',
       resource_reference_key_id?: string,
       filter?: string,
       options?: any,
@@ -1070,7 +1074,7 @@ export const JobServiceApiFactory = function(
 export class JobServiceApi extends BaseAPI {
   /**
    *
-   * @summary Create a new job.
+   * @summary Creates a new job.
    * @param {ApiJob} body The job to be created
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
@@ -1082,7 +1086,7 @@ export class JobServiceApi extends BaseAPI {
 
   /**
    *
-   * @summary Delete a job.
+   * @summary Deletes a job.
    * @param {string} id The ID of the job to be deleted
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
@@ -1118,7 +1122,7 @@ export class JobServiceApi extends BaseAPI {
 
   /**
    *
-   * @summary Find a specific job by ID.
+   * @summary Finds a specific job by ID.
    * @param {string} id The ID of the job to be retrieved
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
@@ -1130,11 +1134,11 @@ export class JobServiceApi extends BaseAPI {
 
   /**
    *
-   * @summary Find all jobs.
-   * @param {string} [page_token]
-   * @param {number} [page_size]
-   * @param {string} [sort_by] Can be format of \&quot;field_name\&quot;, \&quot;field_name asc\&quot; or \&quot;field_name des\&quot;. Ascending by default.
-   * @param {'UNKNOWN_RESOURCE_TYPE' | 'EXPERIMENT' | 'JOB' | 'PIPELINE' | 'PIPELINE_VERSION' | 'NAMESPACE'} [resource_reference_key_type] The type of the resource that referred to.
+   * @summary Finds all jobs.
+   * @param {string} [page_token] A page token to request the next page of results. The token is acquried from the nextPageToken field of the response from the previous ListJobs call or can be omitted when fetching the first page.
+   * @param {number} [page_size] The number of jobs to be listed per page. If there are more jobs than this number, the response message will contain a nextPageToken field you can use to fetch the next page.
+   * @param {string} [sort_by] Can be format of \&quot;field_name\&quot;, \&quot;field_name asc\&quot; or \&quot;field_name desc\&quot;. Ascending by default.
+   * @param {'UNKNOWN_RESOURCE_TYPE' | 'EXPERIMENT' | 'JOB' | 'PIPELINE' | 'PIPELINE_VERSION' | 'NAMESPACE' | 'USER'} [resource_reference_key_type] The type of the resource that referred to.
    * @param {string} [resource_reference_key_id] The ID of the resource that referred to.
    * @param {string} [filter] A url-encoded, JSON-serialized Filter protocol buffer (see [filter.proto](https://github.com/kubeflow/pipelines/ blob/master/backend/api/filter.proto)).
    * @param {*} [options] Override http request option.
@@ -1151,7 +1155,8 @@ export class JobServiceApi extends BaseAPI {
       | 'JOB'
       | 'PIPELINE'
       | 'PIPELINE_VERSION'
-      | 'NAMESPACE',
+      | 'NAMESPACE'
+      | 'USER',
     resource_reference_key_id?: string,
     filter?: string,
     options?: any,

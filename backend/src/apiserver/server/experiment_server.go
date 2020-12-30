@@ -149,6 +149,20 @@ func (s *ExperimentServer) ListExperiment(ctx context.Context, request *api.List
 		if err != nil {
 			return nil, util.Wrap(err, "Failed to authorize with API resource references")
 		}
+	} else if common.IsMultiUserInSingleNamespaceMode(){
+			if refKey != nil && refKey.Type == common.Namespace && len(refKey.ID) > 0 {
+				return nil, util.NewInvalidInputError("In multi-user-single-namespace mode, ListExperiment cannot filter by namespace.")
+			}
+			if refKey == nil || refKey.Type != common.User {
+				return nil, util.NewInvalidInputError("Invalid resource references for experiment. " +
+					"ListExperiment requires filtering by username under `IsMultiUserInSingleNamespaceMode`.")
+			}
+
+			// Filter by username, ignore Filter Context
+			username := refKey.ID
+			filterContext = &common.FilterContext{
+				ReferenceKey: &common.ReferenceKey{Type: common.User, ID: username},
+			}
 	} else {
 		if refKey != nil && refKey.Type == common.Namespace && len(refKey.ID) > 0 {
 			return nil, util.NewInvalidInputError("In single-user mode, ListExperiment cannot filter by namespace.")

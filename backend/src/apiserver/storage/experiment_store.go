@@ -67,6 +67,11 @@ func (s *ExperimentStore) ListExperiments(filterContext *common.FilterContext, o
 	if filterContext.ReferenceKey != nil && filterContext.ReferenceKey.Type == common.Namespace {
 		sqlBuilder = sqlBuilder.Where(sq.Eq{"Namespace": filterContext.ReferenceKey.ID})
 	}
+
+	if filterContext.ReferenceKey != nil && filterContext.ReferenceKey.Type == common.User {
+		sqlBuilder = sqlBuilder.Where(sq.Eq{"User": filterContext.ReferenceKey.ID})
+	}
+
 	sizeSql, sizeArgs, err := opts.AddFilterToSelect(sqlBuilder).ToSql()
 	if err != nil {
 		return errorF(err)

@@ -25,6 +25,7 @@ import (
 const (
 	MultiUserMode                       string = "MULTIUSER"
 	MultiUserModeSharedReadAccess       string = "MULTIUSER_SHARED_READ"
+	MultiUserInSingleNamespaceMode      string = "MULTIUSER_SINGLE_NAMESPACE"
 	PodNamespace                        string = "POD_NAMESPACE"
 	CacheEnabled                        string = "CacheEnabled"
 	DefaultPipelineRunnerServiceAccount string = "DefaultPipelineRunnerServiceAccount"
@@ -83,6 +84,10 @@ func IsMultiUserMode() bool {
 
 func IsMultiUserSharedReadMode() bool {
 	return GetBoolConfigWithDefault(MultiUserModeSharedReadAccess, false)
+}
+
+func IsMultiUserInSingleNamespaceMode() bool {
+	return GetBoolConfigWithDefault(MultiUserInSingleNamespaceMode, false)
 }
 
 func GetPodNamespace() string {

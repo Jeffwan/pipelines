@@ -29,6 +29,7 @@ const (
 	Pipeline        ResourceType = "pipeline"
 	PipelineVersion ResourceType = "PipelineVersion"
 	Namespace       ResourceType = "Namespace"
+	User            ResourceType = "User"
 )
 
 const (

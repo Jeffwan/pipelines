@@ -24,6 +24,7 @@ enum ResourceType {
   PIPELINE = 3;
   PIPELINE_VERSION = 4;
   NAMESPACE = 5;
+  USER = 6;
 }
 
 enum Relationship {

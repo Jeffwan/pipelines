@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 **name** | **str** | Required input field. Unique experiment name provided by user. | [optional] 
 **description** | **str** |  | [optional] 
 **created_at** | **datetime** | Output. The time that the experiment created. | [optional] 
-**resource_references** | [**list[ApiResourceReference]**](ApiResourceReference.md) | Optional input field. Specify which resource this run belongs to. For Experiment, the only valid resource reference is a single Namespace. | [optional] 
+**resource_references** | [**list[ApiResourceReference]**](ApiResourceReference.md) |  | [optional] 
 **storage_state** | [**ExperimentStorageState**](ExperimentStorageState.md) |  | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

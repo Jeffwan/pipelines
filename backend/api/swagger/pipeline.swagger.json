@@ -46,7 +46,8 @@
               "JOB",
               "PIPELINE",
               "PIPELINE_VERSION",
-              "NAMESPACE"
+              "NAMESPACE",
+              "USER"
             ],
             "default": "UNKNOWN_RESOURCE_TYPE"
           },
@@ -626,7 +627,8 @@
         "JOB",
         "PIPELINE",
         "PIPELINE_VERSION",
-        "NAMESPACE"
+        "NAMESPACE",
+        "USER"
       ],
       "default": "UNKNOWN_RESOURCE_TYPE"
     },

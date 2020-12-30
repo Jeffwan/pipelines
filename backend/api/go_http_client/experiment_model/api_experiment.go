@@ -48,6 +48,7 @@ type APIExperiment struct {
 
 	// Optional input field. Specify which resource this run belongs to.
 	// For Experiment, the only valid resource reference is a single Namespace.
+	// TODO: this is repeated in experiment.proto. How does this map to database?
 	ResourceReferences []*APIResourceReference `json:"resource_references"`
 
 	// Output. Specifies whether this experiment is in archived or available state.

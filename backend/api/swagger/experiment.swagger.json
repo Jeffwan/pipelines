@@ -75,7 +75,8 @@
               "JOB",
               "PIPELINE",
               "PIPELINE_VERSION",
-              "NAMESPACE"
+              "NAMESPACE",
+              "USER"
             ],
             "default": "UNKNOWN_RESOURCE_TYPE"
           },
@@ -286,7 +287,7 @@
           "items": {
             "$ref": "#/definitions/apiResourceReference"
           },
-          "description": "Optional input field. Specify which resource this run belongs to.\nFor Experiment, the only valid resource reference is a single Namespace."
+          "title": "Optional input field. Specify which resource this run belongs to.\nFor Experiment, the only valid resource reference is a single Namespace.\nTODO: this is repeated in experiment.proto. How does this map to database?"
         },
         "storage_state": {
           "$ref": "#/definitions/ExperimentStorageState",
@@ -361,7 +362,8 @@
         "JOB",
         "PIPELINE",
         "PIPELINE_VERSION",
-        "NAMESPACE"
+        "NAMESPACE",
+        "USER"
       ],
       "default": "UNKNOWN_RESOURCE_TYPE"
     },

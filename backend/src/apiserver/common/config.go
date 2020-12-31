@@ -32,6 +32,7 @@ const (
 	KubeflowUserIDHeader                string = "KUBEFLOW_USERID_HEADER"
 	KubeflowUserIDPrefix                string = "KUBEFLOW_USERID_PREFIX"
 	UpdatePipelineVersionByDefault      string = "AUTO_UPDATE_PIPELINE_DEFAULT_VERSION"
+	UserJwtToken                        string = "USER_JWT_TOKEN"
 )
 
 func IsPipelineVersionUpdatedByDefault() bool {
@@ -112,4 +113,8 @@ func GetKubeflowUserIDHeader() string {
 
 func GetKubeflowUserIDPrefix() string {
 	return GetStringConfigWithDefault(KubeflowUserIDPrefix, GoogleIAPUserIdentityPrefix)
+}
+
+func GetUserJwtToken() string {
+	return GetStringConfigWithDefault(UserJwtToken, "X-JWT-TOKEN")
 }

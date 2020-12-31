@@ -83,7 +83,12 @@ func grpcCustomMatcher(key string) (string, bool) {
 	if strings.EqualFold(key, common.GetKubeflowUserIDHeader()) {
 		return strings.ToLower(key), true
 	}
-	return strings.ToLower(key), false
+
+	if strings.EqualFold(key, common.GetUserJwtToken()) {
+		return strings.ToLower(key), true
+	}
+
+	return runtime.DefaultHeaderMatcher(key)
 }
 
 func startRpcServer(resourceManager *resource.ResourceManager) {

@@ -12,6 +12,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 	authorizationv1 "k8s.io/api/authorization/v1"
 )
 
@@ -71,7 +74,7 @@ func (s *ExperimentServer) CreateExperiment(ctx context.Context, request *api.Cr
 		createExperimentRequests.Inc()
 	}
 
-	err := ValidateCreateExperimentRequest(request)
+	err := ValidateCreateExperimentRequest(ctx, request)
 	if err != nil {
 		return nil, util.Wrap(err, "Validate experiment request failed.")
 	}
@@ -158,8 +161,18 @@ func (s *ExperimentServer) ListExperiment(ctx context.Context, request *api.List
 					"ListExperiment requires filtering by username under `IsMultiUserInSingleNamespaceMode`.")
 			}
 
+			md, ok := metadata.FromIncomingContext(ctx)
+			if !ok {
+				return nil, status.Errorf(codes.Unauthenticated, "failed to get metadata")
+			}
+
 			// Filter by username, ignore Filter Context
 			username := refKey.ID
+			if md.Get("user")[0] != username {
+				return nil, util.NewInvalidInputError("Invalid resource references for experiment. " +
+					"user in JWT Token has to be match with the user in resource references under `IsMultiUserInSingleNamespaceMode`.")
+			}
+
 			filterContext = &common.FilterContext{
 				ReferenceKey: &common.ReferenceKey{Type: common.User, ID: username},
 			}
@@ -205,7 +218,7 @@ func (s *ExperimentServer) DeleteExperiment(ctx context.Context, request *api.De
 	return &empty.Empty{}, nil
 }
 
-func ValidateCreateExperimentRequest(request *api.CreateExperimentRequest) error {
+func ValidateCreateExperimentRequest(ctx context.Context, request *api.CreateExperimentRequest) error {
 	if request.Experiment == nil || request.Experiment.Name == "" {
 		return util.NewInvalidInputError("Experiment name is empty. Please specify a valid experiment name.")
 	}
@@ -230,6 +243,17 @@ func ValidateCreateExperimentRequest(request *api.CreateExperimentRequest) error
 				"Invalid resource references for experiment. Expect one user type with owner relationship. Got: %v", resourceReferences)
 		}
 		user := common.GetUserFromAPIResourceReferences(request.Experiment.ResourceReferences)
+		md, ok := metadata.FromIncomingContext(ctx)
+		if !ok {
+			return util.NewInvalidInputError("failed to get metadata")
+		}
+
+		// Filter by username, ignore Filter Context
+		if md.Get("user")[0] != user {
+			return util.NewInvalidInputError("Invalid resource references for experiment. " +
+				"user in JWT Token has to be match with the user in resource references under `IsMultiUserInSingleNamespaceMode`.")
+		}
+
 		if len(user) == 0 {
 			return util.NewInvalidInputError("Invalid resource references for experiment. Namespace is empty.")
 		}

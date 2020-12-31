@@ -76,6 +76,8 @@ func ToModelResourceType(apiType api.ResourceType) (ResourceType, error) {
 		return PipelineVersion, nil
 	case api.ResourceType_NAMESPACE:
 		return Namespace, nil
+	case api.ResourceType_USER:
+		return User, nil
 	default:
 		return "", util.NewInvalidInputError("Unsupported resource type: %s", api.ResourceType_name[int32(apiType)])
 	}

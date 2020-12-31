@@ -222,6 +222,17 @@ func ValidateCreateExperimentRequest(request *api.CreateExperimentRequest) error
 		if len(namespace) == 0 {
 			return util.NewInvalidInputError("Invalid resource references for experiment. Namespace is empty.")
 		}
+	} else if common.IsMultiUserInSingleNamespaceMode() {
+		if len(resourceReferences) != 1 ||
+			resourceReferences[0].Key.Type != api.ResourceType_USER ||
+			resourceReferences[0].Relationship != api.Relationship_OWNER {
+			return util.NewInvalidInputError(
+				"Invalid resource references for experiment. Expect one user type with owner relationship. Got: %v", resourceReferences)
+		}
+		user := common.GetUserFromAPIResourceReferences(request.Experiment.ResourceReferences)
+		if len(user) == 0 {
+			return util.NewInvalidInputError("Invalid resource references for experiment. Namespace is empty.")
+		}
 	} else if len(resourceReferences) > 0 {
 		return util.NewInvalidInputError("In single-user mode, CreateExperimentRequest shouldn't contain resource references.")
 	}

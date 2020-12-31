@@ -27,19 +27,30 @@ import (
 
 func (r *ResourceManager) ToModelExperiment(apiExperiment *api.Experiment) (*model.Experiment, error) {
 	namespace := ""
+	user := ""
 	resourceReferences := apiExperiment.GetResourceReferences()
 	if resourceReferences != nil {
-		if len(resourceReferences) != 1 ||
-			resourceReferences[0].Key.Type != api.ResourceType_NAMESPACE ||
-			resourceReferences[0].Relationship != api.Relationship_OWNER {
-			return nil, util.NewInternalServerError(errors.New("Invalid resource references for experiment"), "Unable to convert to model experiment.")
+		if common.IsMultiUserInSingleNamespaceMode() {
+			if len(resourceReferences) != 1 ||
+				resourceReferences[0].Key.Type != api.ResourceType_USER ||
+				resourceReferences[0].Relationship != api.Relationship_OWNER {
+				return nil, util.NewInternalServerError(errors.New("Invalid resource references for experiment"), "Unable to convert to model experiment.")
+			}
+			user = resourceReferences[0].Key.Id
+		} else {
+			if len(resourceReferences) != 1 ||
+				resourceReferences[0].Key.Type != api.ResourceType_NAMESPACE ||
+				resourceReferences[0].Relationship != api.Relationship_OWNER {
+				return nil, util.NewInternalServerError(errors.New("Invalid resource references for experiment"), "Unable to convert to model experiment.")
+			}
+			namespace = resourceReferences[0].Key.Id
 		}
-		namespace = resourceReferences[0].Key.Id
 	}
 	return &model.Experiment{
 		Name:        apiExperiment.Name,
 		Description: apiExperiment.Description,
 		Namespace:   namespace,
+		User:        user,
 	}, nil
 }
 

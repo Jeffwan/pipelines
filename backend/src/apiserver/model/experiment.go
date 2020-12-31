@@ -6,6 +6,7 @@ type Experiment struct {
 	Description    string `gorm:"column:Description; not null"`
 	CreatedAtInSec int64  `gorm:"column:CreatedAtInSec; not null"`
 	Namespace      string `gorm:"column:Namespace; not null; unique_index:idx_name_namespace"`
+	User           string `gorm:"column:User; not null`
 	StorageState   string `gorm:"column:StorageState; not null;"`
 }
 
@@ -33,6 +34,7 @@ var experimentAPIToModelFieldMap = map[string]string{
 	"created_at":    "CreatedAtInSec",
 	"description":   "Description",
 	"namespace":     "Namespace",
+	"user":          "User",
 	"storage_state": "StorageState",
 }
 
@@ -66,6 +68,8 @@ func (e *Experiment) GetFieldValue(name string) interface{} {
 		return e.Description
 	case "Namespace":
 		return e.Namespace
+	case "User":
+		return e.User
 	case "StorageState":
 		return e.StorageState
 	default:

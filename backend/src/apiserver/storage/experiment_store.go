@@ -38,6 +38,7 @@ var (
 		"Description",
 		"CreatedAtInSec",
 		"Namespace",
+		"User",
 		"StorageState",
 	}
 )
@@ -54,6 +55,11 @@ func (s *ExperimentStore) ListExperiments(filterContext *common.FilterContext, o
 	if filterContext.ReferenceKey != nil && filterContext.ReferenceKey.Type == common.Namespace {
 		sqlBuilder = sqlBuilder.Where(sq.Eq{"Namespace": filterContext.ReferenceKey.ID})
 	}
+
+	if filterContext.ReferenceKey != nil && filterContext.ReferenceKey.Type == common.User {
+		sqlBuilder = sqlBuilder.Where(sq.Eq{"User": filterContext.ReferenceKey.ID})
+	}
+
 	sqlBuilder = opts.AddFilterToSelect(sqlBuilder)
 
 	rowsSql, rowsArgs, err := opts.AddPaginationToSelect(sqlBuilder).ToSql()
@@ -151,9 +157,9 @@ func (s *ExperimentStore) GetExperiment(uuid string) (*model.Experiment, error) 
 func (s *ExperimentStore) scanRows(rows *sql.Rows) ([]*model.Experiment, error) {
 	var experiments []*model.Experiment
 	for rows.Next() {
-		var uuid, name, description, namespace, storageState string
+		var uuid, name, description, namespace, storageState, user string
 		var createdAtInSec int64
-		err := rows.Scan(&uuid, &name, &description, &createdAtInSec, &namespace, &storageState)
+		err := rows.Scan(&uuid, &name, &description, &createdAtInSec, &namespace, &storageState, &user)
 		if err != nil {
 			return experiments, err
 		}
@@ -164,6 +170,7 @@ func (s *ExperimentStore) scanRows(rows *sql.Rows) ([]*model.Experiment, error) 
 			CreatedAtInSec: createdAtInSec,
 			Namespace:      namespace,
 			StorageState:   storageState,
+			User:			user,
 		}
 		// Since storage state is a field added after initial KFP release, it is possible that existing experiments don't have this field and we use AVAILABLE in that case.
 		if experiment.StorageState == "" {
@@ -200,6 +207,7 @@ func (s *ExperimentStore) CreateExperiment(experiment *model.Experiment) (*model
 			"Name":           newExperiment.Name,
 			"Description":    newExperiment.Description,
 			"Namespace":      newExperiment.Namespace,
+			"User":           newExperiment.User,
 			"StorageState":   newExperiment.StorageState,
 		}).
 		ToSql()

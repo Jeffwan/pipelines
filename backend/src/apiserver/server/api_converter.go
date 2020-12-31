@@ -38,6 +38,19 @@ func ToApiExperiment(experiment *model.Experiment) *api.Experiment {
 			},
 		}
 	}
+
+	if common.IsMultiUserInSingleNamespaceMode() {
+		resourceReferences = []*api.ResourceReference{
+			&api.ResourceReference{
+				Key: &api.ResourceKey{
+					Type: api.ResourceType_USER,
+					Id:   experiment.User,
+				},
+				Relationship: api.Relationship_OWNER,
+			},
+		}
+	}
+
 	return &api.Experiment{
 		Id:                 experiment.UUID,
 		Name:               experiment.Name,

@@ -29,6 +29,17 @@ func GetNamespaceFromAPIResourceReferences(resourceRefs []*api.ResourceReference
 	return namespace
 }
 
+func GetUserFromAPIResourceReferences(resourceRefs []*api.ResourceReference) string {
+	user := ""
+	for _, resourceRef := range resourceRefs {
+		if resourceRef.Key.Type == api.ResourceType_USER {
+			user = resourceRef.Key.Id
+			break
+		}
+	}
+	return user
+}
+
 func GetExperimentIDFromAPIResourceReferences(resourceRefs []*api.ResourceReference) string {
 	experimentID := ""
 	for _, resourceRef := range resourceRefs {

@@ -168,7 +168,7 @@ func (s *ExperimentServer) ListExperiment(ctx context.Context, request *api.List
 
 			// Filter by username, ignore Filter Context
 			username := refKey.ID
-			if md.Get("user")[0] != username {
+			if len(md.Get("user")) == 0 || md.Get("user")[0] != username {
 				return nil, util.NewInvalidInputError("Invalid resource references for experiment. " +
 					"user in JWT Token has to be match with the user in resource references under `IsMultiUserInSingleNamespaceMode`.")
 			}

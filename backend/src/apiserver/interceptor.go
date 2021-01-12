@@ -16,16 +16,17 @@ package main
 
 import (
 	"context"
+	"github.com/golang/glog"
 	"github.com/kubeflow/pipelines/backend/src/apiserver/common"
+	"github.com/kubeflow/pipelines/backend/src/common/util"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"strings"
-
-	"github.com/golang/glog"
-	"github.com/kubeflow/pipelines/backend/src/common/util"
-	"google.golang.org/grpc"
 )
+
+const BYTEDANCE_JWT_PUBLIC_KEY_ENDPOINT = "https://cloud.bytedance.net/auth/api/v1/public_key"
 
 // apiServerInterceptor implements UnaryServerInterceptor that provides the common wrapping logic
 // to be executed before and after all API handler calls, e.g. Logging, error handling.
@@ -59,23 +60,39 @@ func validateJwtToken(ctx context.Context) (context.Context, error) {
 	}
 
 	jwtToken := md["x-jwt-token"]
-	if len(jwtToken) == 0 {
-		return nil, status.Errorf(codes.InvalidArgument, "missing 'x-jwt-token' header")
-	}
 
-	if strings.Trim(jwtToken[0], " ") == "" {
+	// Compatibility - for non-experiment requests. Frontend only append token to experiment calls.
+	// and we don't want to block other calls like listPipelines, listRuns
+	if len(jwtToken) == 0 {
+		return ctx, nil
+	}
+	// We don't want to check header until we append it to all backend requests
+	//if len(jwtToken) == 0 {
+	//	return nil, status.Errorf(codes.InvalidArgument, "missing 'x-jwt-token' header")
+	//}
+
+	if strings.TrimSpace(jwtToken[0]) == "" {
 		return nil, status.Errorf(codes.InvalidArgument, "empty 'x-jwt-token' header")
 	}
 
-	// TODO: we need to parse JWT token and get user name out
-	// if jwt token if invalid, 400. check generate
-	// otherwise, save user into the context? Where to store?
+	jwtAuthenticator, err := NewJwtAuthenticator(BYTEDANCE_JWT_PUBLIC_KEY_ENDPOINT)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Fail to initialize jwt authenticator: %v", err)
+	}
+	username, err := jwtAuthenticator.AuthenticateToken(jwtToken[0])
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "'x-jwt-token' not valid: %v", err)
+	}
 
-	// Assume we decode JWT token here, we want to retrieve user and save into metadata
-	// We want to store jwt token once to optimize the performance
+	//jwtToken = []string{"jiaxin.wang"}
 
+	// TODO: if we use interceptor, then all other calls with jwt-token will be failed
+	// Share we consider to proxy all request from frontend to backend with jwt-token?
+
+
+	// Get user claim from jwt token and store it in the metadata context for future usage
 	// https://chromium.googlesource.com/external/github.com/grpc/grpc-go/+show/refs/heads/master/Documentation/grpc-metadata.md
-	newMd := metadata.Pairs("user", jwtToken[0])
+	newMd := metadata.Pairs("user", username)
 	newCtx := metadata.NewIncomingContext(ctx, metadata.Join(md, newMd))
 	return newCtx, nil
 }

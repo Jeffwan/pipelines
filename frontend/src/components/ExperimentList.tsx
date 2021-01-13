@@ -17,6 +17,8 @@ import produce from 'immer';
 import Tooltip from '@material-ui/core/Tooltip';
 
 export interface ExperimentListProps extends RouteComponentProps {
+  username?: string;
+  token?: string;
   namespace?: string;
   storageState?: ExperimentStorageState;
   onError: (message: string, error: Error) => void;
@@ -142,8 +144,9 @@ export class ExperimentList extends React.PureComponent<ExperimentListProps, Exp
         request.pageSize,
         request.sortBy,
         request.filter,
-        this.props.namespace ? 'NAMESPACE' : undefined,
-        this.props.namespace || undefined,
+        this.props.username ? 'USER' : this.props.namespace ? 'NAMESPACE'  : undefined,
+        this.props.username || this.props.namespace || undefined,
+        { headers: { 'x-jwt-token': this.props.token }}
       );
       nextPageToken = response.next_page_token || '';
       displayExperiments = response.experiments || [];

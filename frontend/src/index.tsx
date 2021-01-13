@@ -18,6 +18,7 @@ import {
   init as initKfClient,
   NamespaceContextProvider,
   NamespaceContext,
+  EurusContextProvider,
 } from './lib/KubeflowClient';
 import './CSSReset';
 import * as React from 'react';
@@ -28,7 +29,6 @@ import { cssRule } from 'typestyle';
 import { theme, fonts } from './Css';
 import { HashRouter } from 'react-router-dom';
 import { KFP_FLAGS, Deployments } from './lib/Flags';
-import { GkeMetadataProvider } from './lib/GkeMetadata';
 
 // TODO: license headers
 
@@ -48,13 +48,14 @@ cssRule('html, body, #root', {
 
 const app = (
   <MuiThemeProvider theme={theme}>
-    <GkeMetadataProvider>
-      <HashRouter>
+    <HashRouter>
+      <EurusContextProvider>
         <Router />
-      </HashRouter>
-    </GkeMetadataProvider>
+      </EurusContextProvider>
+    </HashRouter>
   </MuiThemeProvider>
 );
+// TODO: how to set KFP_FLAGS? Seems standalone doesn't need it. We should wrap Eurus in above `const app` directly
 ReactDOM.render(
   KFP_FLAGS.DEPLOYMENT === Deployments.KUBEFLOW ? (
     <NamespaceContextProvider>{app}</NamespaceContextProvider>

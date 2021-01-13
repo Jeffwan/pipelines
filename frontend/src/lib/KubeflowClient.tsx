@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useContext, useRef } from 'react';
+import React, { useLayoutEffect, useContext, useRef, FC, useState, useEffect } from 'react';
 import { logger } from './Utils';
 
 declare global {
@@ -46,6 +46,49 @@ export class NamespaceContextProvider extends React.Component {
   render() {
     return <NamespaceContext.Provider value={this.state.namespace} {...this.props} />;
   }
+}
+
+export interface EurusMetadata {
+  username?: string;
+  jwtToken?: string;
+}
+
+
+function parseJwt(token: string): string {
+  try {
+    const base64Url =  token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return  JSON.parse(decodeURIComponent(escape(atob(base64))));
+  } catch (err) {
+    console.error('jwt parse error', err);
+    return  "";
+  }
+};
+
+export const EurusContext = React.createContext<EurusMetadata>({});
+export const EurusContextProvider: FC<{}> = props => {
+  const [metadata, setMetadata] = useState<EurusMetadata>({});
+  useEffect(() => {
+    // since React is hard to retrieve the http header, we determine to get query param in frontend side.
+    const queryParamsString = window.location.search.substr(1)
+    if (queryParamsString === undefined || queryParamsString.length === 0) {
+      console.warn('Can not find query param, skip getting user claim')
+      return
+    }
+    const urlParams = new URLSearchParams(queryParamsString);
+    const jwtToken = urlParams.get('token')
+    const claims = parseJwt(jwtToken || "")
+    const username = claims['username']
+    const obj: EurusMetadata = { username: username!, jwtToken: jwtToken!};
+    setMetadata(obj)
+
+    console.log('---------useEffect------------')
+    console.log(jwtToken)
+    console.log(username)
+    console.log(obj)
+    console.log(metadata)
+  },[])
+  return <EurusContext.Provider value={metadata} {...props}></EurusContext.Provider>
 }
 
 function usePrevious<T>(value: T) {

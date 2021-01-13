@@ -22,9 +22,11 @@ import { ExperimentStorageState } from '../apis/experiment';
 import { ToolbarProps } from '../components/Toolbar';
 import { classes } from 'typestyle';
 import { commonCss, padding } from '../Css';
-import { NamespaceContext } from 'src/lib/KubeflowClient';
+import { EurusContext, NamespaceContext } from 'src/lib/KubeflowClient';
 
 interface ArchivedExperimentsProp {
+  username?: string;
+  token?: string;
   namespace?: string;
 }
 
@@ -66,7 +68,9 @@ export class ArchivedExperiments extends Page<ArchivedExperimentsProp, ArchivedE
 
 const EnhancedArchivedExperiments = (props: PageProps) => {
   const namespace = React.useContext(NamespaceContext);
-  return <ArchivedExperiments key={namespace} {...props} namespace={namespace} />;
+  const eurus = React.useContext(EurusContext);
+  return <ArchivedExperiments key={namespace} {...props} namespace={namespace}
+                              username={eurus.username} token={eurus.jwtToken}/>;
 };
 
 export default EnhancedArchivedExperiments;

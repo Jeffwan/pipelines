@@ -43,6 +43,7 @@ import { logger } from '../lib/Utils';
 import { statusToIcon } from './Status';
 import Tooltip from '@material-ui/core/Tooltip';
 import { NamespaceContext } from 'src/lib/KubeflowClient';
+import { EurusContext } from 'src/lib/KubeflowClient';
 
 interface DisplayExperiment extends ApiExperiment {
   last5Runs?: ApiRun[];
@@ -56,7 +57,7 @@ interface ExperimentListState {
   selectedTab: number;
 }
 
-export class ExperimentList extends Page<{ namespace?: string }, ExperimentListState> {
+export class ExperimentList extends Page<{ namespace?: string, username?: string, token?: string}, ExperimentListState> {
   private _tableRef = React.createRef<CustomTable>();
 
   constructor(props: any) {
@@ -195,14 +196,20 @@ export class ExperimentList extends Page<{ namespace?: string }, ExperimentListS
           string_value: ExperimentStorageState.ARCHIVED.toString(),
         },
       ]);
+
+      console.log("------reload experiment------")
+      console.log(this.props.username)
+      console.log(this.props.token)
+
       request.filter = encodeURIComponent(JSON.stringify(filter));
       response = await Apis.experimentServiceApi.listExperiment(
         request.pageToken,
         request.pageSize,
         request.sortBy,
         request.filter,
-        this.props.namespace ? 'NAMESPACE' : undefined,
-        this.props.namespace || undefined,
+        this.props.username? 'USER': this.props.namespace ? 'NAMESPACE' : undefined,
+        this.props.username || this.props.namespace || undefined,
+        { headers: { 'x-jwt-token': this.props.token }}
       );
       displayExperiments = response.experiments || [];
       displayExperiments.forEach(exp => (exp.expandState = ExpandState.COLLAPSED));
@@ -291,7 +298,14 @@ export class ExperimentList extends Page<{ namespace?: string }, ExperimentListS
 
 const EnhancedExperimentList: React.FC<PageProps> = props => {
   const namespace = React.useContext(NamespaceContext);
-  return <ExperimentList key={namespace} {...props} namespace={namespace} />;
+  const eurus = React.useContext(EurusContext)
+
+  console.log('--------enhanced experiment list-------')
+  console.log(eurus.username)
+  console.log(eurus.jwtToken)
+
+  return <ExperimentList key={namespace} {...props} namespace={namespace}
+                         username={eurus.username} token={eurus.jwtToken} />;
 };
 
 export default EnhancedExperimentList;

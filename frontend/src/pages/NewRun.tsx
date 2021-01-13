@@ -54,7 +54,7 @@ import { logger, errorToMessage } from '../lib/Utils';
 import UploadPipelineDialog, { ImportMethod } from '../components/UploadPipelineDialog';
 import { CustomRendererProps } from '../components/CustomTable';
 import { Description } from '../components/Description';
-import { NamespaceContext } from '../lib/KubeflowClient';
+import { NamespaceContext, EurusContext } from '../lib/KubeflowClient';
 import { NameWithTooltip } from '../components/CustomTableNameColumn';
 import { PredicateOp, ApiFilter } from '../apis/filter';
 import { HelpButton } from 'src/atoms/HelpButton';
@@ -113,7 +113,7 @@ const descriptionCustomRenderer: React.FC<CustomRendererProps<string>> = props =
   return <Description description={props.value || ''} forceInline={true} />;
 };
 
-export class NewRun extends Page<{ namespace?: string }, NewRunState> {
+export class NewRun extends Page<{ namespace?: string, username?: string, token?: string}, NewRunState> {
   public state: NewRunState = {
     catchup: true,
     description: '',
@@ -431,8 +431,9 @@ export class NewRun extends Page<{ namespace?: string }, NewRunState> {
                     page_size,
                     sort_by,
                     encodeURIComponent(JSON.stringify(new_filter)),
-                    this.props.namespace ? 'NAMESPACE' : undefined,
-                    this.props.namespace,
+                    this.props.username ? 'USER': this.props.namespace ? 'NAMESPACE' : undefined,
+                    this.props.username || this.props.namespace || undefined,
+                    { headers: { 'x-jwt-token': this.props.token }}
                   );
                   return {
                     nextPageToken: response.next_page_token || '',
@@ -1201,7 +1202,8 @@ export class NewRun extends Page<{ namespace?: string }, NewRunState> {
 
 const EnhancedNewRun: React.FC<PageProps> = props => {
   const namespace = React.useContext(NamespaceContext);
-  return <NewRun {...props} namespace={namespace} />;
+  const eurus = React.useContext(EurusContext);
+  return <NewRun {...props} namespace={namespace} username={eurus.username} token={eurus.jwtToken}/>;
 };
 
 export default EnhancedNewRun;
